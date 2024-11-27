@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Add New Expense to {{ group.name }}</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description</label>
+                    {{ form.description(class="form-control") }}
+                    {% if form.description.errors %}
+                        {% for error in form.description.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="amount" class="form-label">Amount</label>
+                    <div class="input-group">
+                        <span class="input-group-text">$</span>
+                        {{ form.amount(class="form-control") }}
+                    </div>
+                    {% if form.amount.errors %}
+                        {% for error in form.amount.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    {{ form.category(class="form-control") }}
+                    {% if form.category.errors %}
+                        {% for error in form.category.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="split_type" class="form-label">Split Type</label>
+                    {{ form.split_type(class="form-control") }}
+                    {% if form.split_type.errors %}
+                        {% for error in form.split_type.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="participants" class="form-label">Split With (leave empty to split with all members)</label>
+                    {{ form.participants(class="form-control", multiple=true) }}
+                    {% if form.participants.errors %}
+                        {% for error in form.participants.errors %}
+                            <div class="text-danger">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('group_details', group_id=group.id) }}" class="btn btn-secondary">Cancel</a>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>Welcome, {{ current_user.username }}!</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('create_group') }}" class="btn btn-primary">Create New Group</a>
+            <a href="{{ url_for('friends') }}" class="btn btn-outline-primary">Manage Friends</a>
+        </div>
+    </div>
+
+    {% if pending_invites %}
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Pending Group Invitations</h5>
+        </div>
+        <div class="card-body">
+            <div class="list-group">
+                {% for invite in pending_invites %}
+                <div class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="mb-1">{{ invite.group.name }}</h6>
+                            <small class="text-muted">Invited by {{ invite.inviter.username }}</small>
+                        </div>
+                        <div>
+                            <a href="{{ url_for('handle_invite', invite_id=invite.id, action='accept') }}" 
+                               class="btn btn-sm btn-success">Accept</a>
+                            <a href="{{ url_for('handle_invite', invite_id=invite.id, action='reject') }}" 
+                               class="btn btn-sm btn-danger">Reject</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Your Groups</h5>
+                </div>
+                <div class="card-body">
+                    {% if groups %}
+                    <div class="list-group">
+                        {% for group in groups %}
+                        <a href="{{ url_for('group_details', group_id=group.id) }}" 
+                           class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ group.name }}</h6>
+                                    <small class="text-muted">
+                                        {{ group.members|length }} members
+                                    </small>
+                                </div>
+                                <span class="badge bg-primary rounded-pill">
+                                    {{ group.expenses|length }} expenses
+                                </span>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">You're not a member of any groups yet. Create one or ask your friends for an invite!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

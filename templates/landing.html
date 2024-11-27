@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome to Splitwise Clone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .landing-container {
+        height: calc(100vh - 60px);
+        display: flex;
+        align-items: center;
+    }
+
+    .gradient-text {
+        background: linear-gradient(45deg, #1cc29f, #18a98b);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: bold;
+    }
+
+    .feature-list {
+        max-height: 450px;
+        
+        padding-right: 10px;
+    }
+
+    .feature-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .feature-list::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 4px;
+    }
+
+    .feature-list::-webkit-scrollbar-thumb {
+        background: #1cc29f;
+        border-radius: 4px;
+    }
+
+    .feature-list::-webkit-scrollbar-thumb:hover {
+        background: #18a98b;
+    }
+
+    [data-bs-theme="dark"] .feature-list::-webkit-scrollbar-track {
+        background: #2c3034;
+    }
+
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        cursor: pointer;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 15px rgba(0,0,0,.1);
+    }
+
+    .feature-icon {
+        font-size: 2rem;
+        color: #1cc29f;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="landing-container">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <h1 class="display-4 mb-4">Welcome to <span class="gradient-text">Splitwise Clone</span></h1>
+                <p class="lead mb-4">Split bills with friends and family effortlessly. Track shared expenses, settle debts, and maintain financial harmony.</p>
+                <div class="d-grid gap-2 d-md-flex">
+                    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg me-md-2">Get Started</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">Login</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="feature-list">
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card feature-card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-calculator feature-icon"></i>
+                                    <h5 class="card-title">Easy Bill Splitting</h5>
+                                    <p class="card-text">Split bills equally or with custom amounts among friends.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card feature-card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-people feature-icon"></i>
+                                    <h5 class="card-title">Group Expenses</h5>
+                                    <p class="card-text">Create groups for trips, roommates, or events.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card feature-card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-graph-up feature-icon"></i>
+                                    <h5 class="card-title">Expense Tracking</h5>
+                                    <p class="card-text">Monitor spending patterns and balances over time.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card feature-card h-100">
+                                <div class="card-body text-center">
+                                    <i class="bi bi-bell feature-icon"></i>
+                                    <h5 class="card-title">Smart Reminders</h5>
+                                    <p class="card-text">Get notified about pending payments and settlements.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

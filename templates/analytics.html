@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">Spending Analysis</h4>
+                    <div class="btn-group">
+                        <button class="btn btn-outline-dark btn-sm" onclick="updateTimeframe('month')">Month</button>
+                        <button class="btn btn-outline-dark btn-sm" onclick="updateTimeframe('year')">Year</button>
+                        <button class="btn btn-outline-dark btn-sm" onclick="updateTimeframe('all')">All Time</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <canvas id="spendingChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4 class="mb-0">Top Spenders</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="spendersChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4 class="mb-0">Category Breakdown</h4>
+                </div>
+                <div class="card-body">
+                    <canvas id="categoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h4 class="mb-0">Balance Summary</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Friend</th>
+                                    <th>You Owe</th>
+                                    <th>Owes You</th>
+                                    <th>Net Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for balance in balances %}
+                                <tr>
+                                    <td>{{ balance.friend_name }}</td>
+                                    <td class="text-danger">{{ "%.2f"|format(balance.you_owe) if balance.you_owe > 0 else "0.00" }}</td>
+                                    <td class="text-success">{{ "%.2f"|format(balance.owes_you) if balance.owes_you > 0 else "0.00" }}</td>
+                                    <td class="{{ 'text-success' if balance.net >= 0 else 'text-danger' }}">
+                                        {{ "%.2f"|format(balance.net) }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Spending over time chart
+const spendingCtx = document.getElementById('spendingChart').getContext('2d');
+const spendingChart = new Chart(spendingCtx, {
+    type: 'line',
+    data: {
+        labels: {{ dates|tojson }},
+        datasets: [{
+            label: 'Your Spending',
+            data: {{ spending_data|tojson }},
+            borderColor: '#1cc29f',
+            tension: 0.1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Spending Over Time'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return '$' + value;
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Top spenders pie chart
+const spendersCtx = document.getElementById('spendersChart').getContext('2d');
+const spendersChart = new Chart(spendersCtx, {
+    type: 'pie',
+    data: {
+        labels: {{ spenders_labels|tojson }},
+        datasets: [{
+            data: {{ spenders_data|tojson }},
+            backgroundColor: [
+                '#1cc29f',
+                '#ff6b6b',
+                '#4ecdc4',
+                '#45b7d1',
+                '#96ceb4',
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Category breakdown chart
+const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+const categoryChart = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+        labels: {{ category_labels|tojson }},
+        datasets: [{
+            data: {{ category_data|tojson }},
+            backgroundColor: [
+                '#1cc29f',
+                '#ff6b6b',
+                '#4ecdc4',
+                '#45b7d1',
+                '#96ceb4',
+                '#ffbe0b',
+            ]
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+function updateTimeframe(timeframe) {
+    fetch(`/api/analytics?timeframe=${timeframe}`)
+        .then(response => response.json())
+        .then(data => {
+            // Update spending chart
+            spendingChart.data.labels = data.dates;
+            spendingChart.data.datasets[0].data = data.spending_data;
+            spendingChart.update();
+
+            // Update spenders chart
+            spendersChart.data.labels = data.spenders_labels;
+            spendersChart.data.datasets[0].data = data.spenders_data;
+            spendersChart.update();
+
+            // Update category chart
+            categoryChart.data.labels = data.category_labels;
+            categoryChart.data.datasets[0].data = data.category_data;
+            categoryChart.update();
+        });
+}
+</script>
+{% endblock %}

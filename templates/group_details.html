@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>{{ group.name }}</h2>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ url_for('add_expense', group_id=group.id) }}" class="btn btn-primary">Add Expense</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Expenses</h5>
+                </div>
+                <div class="card-body">
+                    {% if expenses %}
+                    <div class="list-group">
+                        {% for expense in expenses %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ expense.description }}</h6>
+                                    <small class="text-muted">
+                                        Paid by {{ expense.paid_by.username }} on 
+                                        {{ expense.date.strftime('%Y-%m-%d') }}
+                                    </small>
+                                    <div class="mt-2">
+                                        <small class="text-muted">
+                                            Split between: 
+                                            {% for share in expense.shares %}
+                                                {{ share.user.username }}
+                                                {% if not loop.last %}, {% endif %}
+                                            {% endfor %}
+                                        </small>
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <h6 class="mb-1">${{ "%.2f"|format(expense.amount) }}</h6>
+                                    {% for share in expense.shares %}
+                                        {% if share.user == current_user %}
+                                            {% if share.paid %}
+                                                <span class="badge bg-success">Paid</span>
+                                            {% else %}
+                                                <form method="POST" action="{{ url_for('settle_expense', expense_id=expense.id) }}" 
+                                                      style="display: inline;">
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">
+                                                        Pay ${{"%.2f"|format(share.amount)}}
+                                                    </button>
+                                                </form>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No expenses recorded yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Members</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for member in group.members %}
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ member.username }}
+                            {% if member == group.created_by %}
+                            <span class="badge bg-info">Admin</span>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            {% if current_user == group.created_by %}
+            <div class="card">
+                <div class="card-header">
+                    <h5>Invite Friends</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('invite_to_group', group_id=group.id) }}">
+                        {{ invite_form.hidden_tag() }}
+                        <div class="form-group">
+                            {{ invite_form.friend.label(class="form-label") }}
+                            {{ invite_form.friend(class="form-select") }}
+                        </div>
+                        {{ invite_form.submit(class="btn btn-primary mt-3") }}
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

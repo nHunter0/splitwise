@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Custom Split for "{{ expense.description }}"</h2>
+    <p class="lead">Total Amount: ${{ "%.2f"|format(expense.amount) }}</p>
+    
+    <div class="card">
+        <div class="card-body">
+            <form method="POST">
+                <div class="mb-3">
+                    <p>Specify the percentage share for each member (total must equal 100%):</p>
+                </div>
+                
+                {% for member in expense.group.members %}
+                <div class="mb-3">
+                    <label for="share_{{ member.id }}" class="form-label">
+                        {{ member.display_name or member.username }}
+                    </label>
+                    <div class="input-group">
+                        <input type="number" 
+                               class="form-control" 
+                               id="share_{{ member.id }}"
+                               name="share_{{ member.id }}"
+                               min="0"
+                               max="100"
+                               step="0.01"
+                               value="{{ 100 / expense.group.members|length if member in expense.group.members else 0 }}"
+                               required>
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('group_details', group_id=expense.group.id) }}" class="btn btn-secondary">Cancel</a>
+                    <button type="submit" class="btn btn-primary">Save Split</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        let total = 0;
+        const inputs = document.querySelectorAll('input[type="number"]');
+        inputs.forEach(input => {
+            total += parseFloat(input.value) || 0;
+        });
+        
+        if (Math.abs(total - 100) > 0.01) {
+            alert('Total percentage must equal 100%');
+            return;
+        }
+        
+        form.submit();
+    });
+});
+</script>
+{% endblock %}
